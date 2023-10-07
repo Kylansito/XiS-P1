@@ -11,12 +11,22 @@ reached = False
 while ttl < 100 and not reached:
     p = IP(dst="www.google.com", ttl=ttl)/ICMP()
     ttl += 1
+
+    start = time.time()
     r = sr1(p, verbose=0, timeout=1)
+    end = time.time()
+
+
     if r is None:
         print("Timeout")
     else:
         #print(r.src, "respondio con TTL: ", r.ttl)
-        print("TTL: ", ttl, "--> ", r.src)
+        totalTimeMiliseconds = (end-start)*1000
+        try:
+            hostname = socket.gethostbyaddr(r.src)
+        except:
+            hostname = "No se pudo resolver"
+        print("TTL: ", ttl, "--> ", r.src, "With hostname: ", hostname[0], "in ", totalTimeMiliseconds, "ms")
         if r.src not in allIp:
             allIp.append(r.src)
         if p.dst == r.src:
